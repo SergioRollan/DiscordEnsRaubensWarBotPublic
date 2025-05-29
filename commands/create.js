@@ -5,10 +5,20 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("create")
     .setDescription("Crea una nueva elección para que la gente se postule.")
+    .setDescriptionLocalization(
+      "en-US",
+      "Create a new voting for people to apply."
+    )
+    .setDescriptionLocalization(
+      "fr",
+      "Créez une nouvelle élection pour que les gens puissent se présenter."
+    )
     .addStringOption((option) =>
       option
         .setName("nombre")
         .setDescription("Nombre de la elección")
+        .setDescriptionLocalization("en-US", "Name of the voting")
+        .setDescriptionLocalization("fr", "Nom de l'élection")
         .setRequired(true)
     ),
   async execute(interaction) {

@@ -4,7 +4,9 @@ const fs = require("fs");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("contact")
-    .setDescription("Contacta al creador del bot."),
+    .setDescription("Contacta al creador del bot.")
+    .setDescriptionLocalization("en-US", "Contact the bot creator.")
+    .setDescriptionLocalization("fr", "Contacter le créateur du bot."),
   async execute(interaction) {
     let lang =
       interaction.client.electionConfig?.[interaction.guildId]?.language ||

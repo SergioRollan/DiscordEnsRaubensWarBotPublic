@@ -4,7 +4,15 @@ const fs = require("fs");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("help")
-    .setDescription("Muestra información sobre los comandos del bot."),
+    .setDescription("Muestra información sobre los comandos del bot.")
+    .setDescriptionLocalization(
+      "en-US",
+      "Show information about the bot commands."
+    )
+    .setDescriptionLocalization(
+      "fr",
+      "Afficher des informations sur les commandes du bot."
+    ),
   async execute(interaction) {
     let lang =
       interaction.client.electionConfig?.[interaction.guildId]?.language ||

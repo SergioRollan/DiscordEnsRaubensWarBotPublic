@@ -5,6 +5,14 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("state")
     .setDescription("Muestra el estado del bot (solo administradores).")
+    .setDescriptionLocalization(
+      "en-US",
+      "Show the bot status (administrators only)."
+    )
+    .setDescriptionLocalization(
+      "fr",
+      "Afficher l'état du bot (administrateurs uniquement)."
+    )
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
   async execute(interaction) {
     const member = await interaction.guild.members.fetch(interaction.user.id);

@@ -5,10 +5,20 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("config")
     .setDescription("Configura el rol autorizado para gestionar elecciones.")
+    .setDescriptionLocalization(
+      "en-US",
+      "Set the authorized role to manage votings."
+    )
+    .setDescriptionLocalization(
+      "fr",
+      "Configurer le rôle autorisé pour gérer les élections."
+    )
     .addStringOption((option) =>
       option
         .setName("rol")
         .setDescription("Nombre del rol autorizado")
+        .setDescriptionLocalization("en-US", "Name of the authorized role")
+        .setDescriptionLocalization("fr", "Nom du rôle autorisé")
         .setRequired(true)
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
