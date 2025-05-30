@@ -33,5 +33,9 @@
   "help_admin_state": "/state - Shows the bot state (admins only).\n",
   "help_role": "**Available commands:**\n\n/create <name> - Create a new voting with the given name.\n/open <name> <max_votes> - Open the specified voting to the public.\n/vote <name> <numbers> - Cast your vote in the specified voting, entering the numbers of the candidates separated by commas or spaces.\n/close <name> <winners> - Close the voting and show all the winners of the specified voting.\n/view <name> - Shows who each person has voted for in the specified voting.\n/contact - Contact the bot creator.\n/help - Show this help.\n",
   "contact_message": "Contact the creator, <@513755565843808266>, if you have any questions or suggestions, or if you have experienced any issues. Thanks :)",
-  "help_contact": "/contact - Contact the bot creator.\n"
+  "help_contact": "/contact - Contact the bot creator.\n",
+  "all_votings_deleted": "All votings have been deleted successfully.",
+  "no_votings_to_delete": "There are no votings to delete.",
+  "help_reset": "/reset - Delete all votings in the server (admins only).\n",
+  "help_reset_role": "/reset - Delete all votings in the server (admins only).\n"
 }

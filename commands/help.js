@@ -33,11 +33,20 @@ module.exports = {
         )
       : false;
     if (isAdmin) {
-      await interaction.reply({ content: strings.help, ephemeral: true });
+      await interaction.reply({
+        content:
+          strings.help +
+          (strings.help_admin_state || "") +
+          (strings.help_reset || ""),
+        ephemeral: true,
+      });
       return;
     }
     if (tieneRol) {
-      await interaction.reply({ content: strings.help_role, ephemeral: true });
+      await interaction.reply({
+        content: strings.help_role + (strings.help_reset_role || ""),
+        ephemeral: true,
+      });
       return;
     }
     await interaction.reply({

@@ -33,5 +33,9 @@
   "help_admin_state": "/state - Affiche l'état du bot (admins uniquement).\n",
   "help_role": "**Commandes disponibles :**\n\n/create <nom> - Crée une nouvelle élection avec le nom indiqué.\n/open <nom> <max_votes> - Ouvre l'élection indiquée au public.\n/vote <nom> <nombres> - Votez dans l'élection indiquée, en entrant les numéros des candidats séparés par des virgules ou des espaces.\n/close <nom> <gagnants> - Ferme l'élection et affiche tous les gagnants de l'élection indiquée.\n/view <nom> - Affiche pour qui chaque personne a voté dans l'élection indiquée.\n/contact - Contacter le créateur du bot.\n/help - Affiche cette aide.\n",
   "contact_message": "Contactez le créateur, <@513755565843808266>, si vous avez une question ou une suggestion, ou si vous avez rencontré un problème. Merci :)",
-  "help_contact": "/contact - Contacter le créateur du bot.\n"
+  "help_contact": "/contact - Contacter le créateur du bot.\n",
+  "all_elections_deleted": "Toutes les élections ont été supprimées avec succès.",
+  "no_elections_to_delete": "Il n'y a aucune élection à supprimer.",
+  "help_reset": "/reset - Supprime toutes les élections du serveur (admins uniquement).\n",
+  "help_reset_role": "/reset - Supprime toutes les élections du serveur (admins uniquement).\n"
 }

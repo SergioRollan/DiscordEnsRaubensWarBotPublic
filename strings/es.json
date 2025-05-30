@@ -33,5 +33,9 @@
   "help_admin_state": "/state - Muestra el estado del bot (solo administradores).\n",
   "help_role": "**Comandos disponibles:**\n\n/create <nombre> - Crea una nueva votación con el nombre indicado.\n/open <nombre> <max_votos> - Abre la votación indicada al público.\n/vote <nombre> <números> - Ejerce el voto en la votación indicada, indicando los números de los postulados separados por comas o espacios.\n/close <nombre> <ganadores> - Cierra la votación y muestra a todos los ganadores de la votación indicada.\n/view <nombre> - Muestra a quién ha votado cada persona en la elección indicada.\n/contact - Contacta al creador del bot.\n/help - Muestra esta ayuda.\n",
   "contact_message": "Contacta al creador, <@513755565843808266>, si tienes alguna duda o sugerencia, o si has experimentado algún problema. Gracias :)",
-  "help_contact": "/contact - Contacta al creador del bot.\n"
+  "help_contact": "/contact - Contacta al creador del bot.\n",
+  "all_elections_deleted": "Todas las votaciones han sido eliminadas correctamente.",
+  "no_elections_to_delete": "No hay votaciones para eliminar.",
+  "help_reset": "/reset - Elimina todas las votaciones del servidor (solo administradores).\n",
+  "help_reset_role": "/reset - Elimina todas las votaciones del servidor (solo administradores).\n"
 }
