@@ -43,9 +43,10 @@ module.exports = {
     const elections =
       interaction.client.electionData?.[interaction.guildId] || {};
     const created =
-      Object.keys(elections).length > 0
-        ? Object.keys(elections).join(", ")
-        : "-";
+      Object.entries(elections)
+        .filter(([_, v]) => v && v.estado === "postulacion")
+        .map(([k]) => k)
+        .join(", ") || "-";
     const open =
       Object.entries(elections)
         .filter(([_, v]) => v && v.estado === "votacion")
