@@ -35,10 +35,7 @@ module.exports = {
     if (isAdmin) {
       await interaction.reply({
         content:
-          strings.help.replace(/\n*$/, "") +
-          (strings.help_admin_state || "") +
-          (strings.help_reset || "") +
-          (strings.help_last_line || ""),
+          strings.help.replace(/\n*$/, "") + (strings.help_last_line || ""),
         ephemeral: true,
       });
       return;
@@ -47,7 +44,6 @@ module.exports = {
       await interaction.reply({
         content:
           strings.help_role.replace(/\n*$/, "") +
-          (strings.help_reset_role || "") +
           (strings.help_last_line || ""),
         ephemeral: true,
       });
