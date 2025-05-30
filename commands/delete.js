@@ -63,7 +63,7 @@ module.exports = {
       strings = JSON.parse(fs.readFileSync("./strings/en.json", "utf8"));
     }
     const elections =
-      interaction.client.electionData?.[interaction.channel.id] || {};
+      interaction.client.electionData?.[interaction.guildId] || {};
     // Filtrar solo elecciones válidas (que sean objetos con estado)
     const choices = Object.entries(elections)
       .filter(([_, v]) => v && typeof v === "object" && v.estado !== "cerrado")

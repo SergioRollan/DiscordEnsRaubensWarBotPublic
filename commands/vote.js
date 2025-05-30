@@ -76,9 +76,9 @@ module.exports = {
       });
     }
     const input = interaction.options.getString("candidatos");
-    const indices = input
-      .split(/[,\s]+/)
-      .map((x) => parseInt(x.trim(), 10) - 1);
+    let indices = input.split(/[\,\s]+/).map((x) => parseInt(x.trim(), 10) - 1);
+    // Eliminar duplicados
+    indices = [...new Set(indices)];
     if (
       indices.some(isNaN) ||
       indices.some((i) => i < 0 || i >= data.postulados.length)
