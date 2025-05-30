@@ -19,7 +19,7 @@
   "election_opened": "Élection '{name}' ouverte au vote.",
   "election_closed": "Élection '{name}' fermée.",
   "election_name_required": "Vous devez spécifier le nom de l'élection.",
-  "help": "**Commandes disponibles :**\n\n/create <nom> - Crée une nouvelle élection avec le nom indiqué.\n/open <nom> <max_votes> - Ouvre l'élection indiquée au public.\n/vote <nom> <nombres> - Votez dans l'élection indiquée, en entrant les numéros des candidats séparés par des virgules ou des espaces.\n/close <nom> <gagnants> - Ferme l'élection et affiche tous les gagnants de l'élection indiquée.\n/view <nom> - Affiche pour qui chaque personne a voté dans l'élection indiquée.\n/config <rôle> - Configure le rôle autorisé à gérer les élections (administrateurs uniquement).\n/language <langue> - Change la langue du bot (administrateurs uniquement).\n/state - Affiche l'état du bot (administrateurs uniquement).\n/contact - Contacter le créateur du bot.\n/reset - Supprime toutes les élections du serveur (admins uniquement).\n/help - Affiche cette aide.\n",
+  "help": "**Commandes disponibles :**\n\n/create <nom> - Crée une nouvelle élection avec le nom indiqué.\n/open <nom> <max_votes> - Ouvre l'élection indiquée au public.\n/vote <nom> <nombres> - Votez dans l'élection indiquée, en entrant les numéros des candidats séparés par des virgules ou des espaces.\n/close <nom> <gagnants> - Ferme l'élection et affiche tous les gagnants de l'élection indiquée.\n/view <nom> - Affiche pour qui chaque personne a voté dans l'élection indiquée.\n/config <rôle> - Configure le rôle autorisé à gérer les élections (administrateurs uniquement).\n/language <langue> - Change la langue du bot (administrateurs uniquement).\n/state - Affiche l'état du bot (admins uniquement).\n/reset - Supprime toutes les élections du serveur (admins uniquement).\n/contact - Contacter le créateur du bot.\n",
   "election_deleted": "Élection '{name}' supprimée avec succès.",
   "election_not_found": "Élection '{name}' introuvable.",
   "autocomplete_no_elections": "Aucune élection disponible dans ce canal.",
@@ -28,14 +28,15 @@
   "vote_singular": "vote",
   "vote_plural": "votes",
   "election_already_exists": "Il existe déjà une élection avec ce nom.",
-  "help_vote_only": "**Commandes disponibles :**\n\n/vote <nom> <nombres> - Votez dans l'élection indiquée, en entrant les numéros des candidats séparés par des virgules ou des espaces.\n/contact - Contacter le créateur du bot.\n/help - Affiche cette aide.\n\nExemple : /vote nom:président candidats:1,5,8,11,12,16 (pour une élection avec un maximum de 6 votes et 16 candidats ou plus)\n",
+  "help_vote_only": "**Commandes disponibles :**\n\n/vote <nom> <nombres> - Votez dans l'élection indiquée, en entrant les numéros des candidats séparés par des virgules ou des espaces.\n/contact - Contacter le créateur du bot.\n\nExemple : /vote nom:président candidats:1,5,8,11,12,16 (pour une élection avec un maximum de 6 votes et 16 candidats ou plus)",
   "state_info": "**État du bot :**\nLangue configurée : {lang}\nRôle autorisé : {role}\nÉlections créées : {created}\nÉlections ouvertes : {open}",
   "help_admin_state": "/state - Affiche l'état du bot (admins uniquement).\n",
-  "help_role": "**Commandes disponibles :**\n\n/create <nom> - Crée une nouvelle élection avec le nom indiqué.\n/open <nom> <max_votes> - Ouvre l'élection indiquée au public.\n/vote <nom> <nombres> - Votez dans l'élection indiquée, en entrant les numéros des candidats séparés par des virgules ou des espaces.\n/close <nom> <gagnants> - Ferme l'élection et affiche tous les gagnants de l'élection indiquée.\n/view <nom> - Affiche pour qui chaque personne a voté dans l'élection indiquée.\n/contact - Contacter le créateur du bot.\n/reset - Supprime toutes les élections du serveur (admins uniquement).\n/help - Affiche cette aide.\n",
+  "help_role": "**Commandes disponibles :**\n\n/create <nom> - Crée une nouvelle élection avec le nom indiqué.\n/open <nom> <max_votes> - Ouvre l'élection indiquée au public.\n/vote <nom> <nombres> - Votez dans l'élection indiquée, en entrant les numéros des candidats séparés par des virgules ou des espaces.\n/close <nom> <gagnants> - Ferme l'élection et affiche tous les gagnants de l'élection indiquée.\n/view <nom> - Affiche pour qui chaque personne a voté dans l'élection indiquée.\n/reset - Supprime toutes les élections du serveur (admins uniquement).\n/contact - Contacter le créateur du bot.\n",
   "contact_message": "Contactez le créateur, <@513755565843808266>, si vous avez une question ou une suggestion, ou si vous avez rencontré un problème. Merci :)",
   "help_contact": "/contact - Contacter le créateur du bot.\n",
   "all_elections_deleted": "Toutes les élections ont été supprimées avec succès.",
   "no_elections_to_delete": "Il n'y a aucune élection à supprimer.",
   "help_reset": "/reset - Supprime toutes les élections du serveur (admins uniquement).\n",
-  "help_reset_role": "/reset - Supprime toutes les élections du serveur (admins uniquement).\n"
+  "help_reset_role": "/reset - Supprime toutes les élections du serveur (admins uniquement).\n",
+  "help_last_line": "\n/help - Affiche cette aide.\n"
 }

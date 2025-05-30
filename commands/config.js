@@ -58,7 +58,7 @@ module.exports = {
     };
     await interaction.reply({
       content: strings.config_set.replace("{role}", nombreRol),
-      ephemeral: true,
+      ephemeral: false,
     });
   },
 };

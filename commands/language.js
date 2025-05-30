@@ -46,7 +46,7 @@ module.exports = {
     interaction.client.electionConfig[interaction.guildId].language = idioma;
     await interaction.reply({
       content: `Idioma configurado a: **${idioma}**`,
-      ephemeral: true,
+      ephemeral: false,
     });
   },
 };

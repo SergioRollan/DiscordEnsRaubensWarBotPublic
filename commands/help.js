@@ -35,21 +35,28 @@ module.exports = {
     if (isAdmin) {
       await interaction.reply({
         content:
-          strings.help +
+          strings.help.replace(/\n*$/, "") +
           (strings.help_admin_state || "") +
-          (strings.help_reset || ""),
+          (strings.help_reset || "") +
+          (strings.help_last_line || ""),
         ephemeral: true,
       });
       return;
     }
     if (tieneRol) {
       await interaction.reply({
-        content: strings.help_role + (strings.help_reset_role || ""),
+        content:
+          strings.help_role.replace(/\n*$/, "") +
+          (strings.help_reset_role || "") +
+          (strings.help_last_line || ""),
         ephemeral: true,
       });
       return;
     }
     await interaction.reply({
+      content:
+        strings.help_vote_only.replace(/\n*$/, "") +
+        (strings.help_last_line || ""),
       content: strings.help_vote_only,
       ephemeral: true,
     });
