@@ -1,0 +1,138 @@
+const { SlashCommandBuilder } = require("discord.js");
+
+const STATUS_EMOJI = {
+  c: ":white_check_mark:",
+  csub: ":exclamation:",
+  mb: ":question:",
+  ct: ":x:",
+};
+
+function parseTokens(raw) {
+  const tokens = raw.trim().split(/\s+/);
+  const updates = new Map();
+  const regex = /^(csub|c|mb|ct)(\d{2})$/i;
+  for (const t of tokens) {
+    const m = t.match(regex);
+    if (!m) return { error: true };
+    const status = m[1].toLowerCase();
+    const hour = Number(m[2]);
+    if (hour < 0 || hour > 23) return { error: true };
+    updates.set(hour, status);
+  }
+  return { error: false, updates };
+}
+
+function ensureChannelState(client, channelId) {
+  if (!client.registrations[channelId]) {
+    client.registrations[channelId] = Array.from({ length: 24 }, () => ({}));
+  }
+  return client.registrations[channelId];
+}
+
+function buildSummary(channelState) {
+  const lines = [];
+  for (let h = 0; h < 24; h++) {
+    const perHour = channelState[h];
+    const users = Object.entries(perHour);
+    if (users.length === 0) continue;
+    const byStatus = new Map();
+    for (const [userId, value] of users) {
+      const isObj = value && typeof value === "object";
+      const status = isObj ? value.status : value;
+      const ts = isObj ? value.ts || 0 : 0;
+      if (!byStatus.has(status)) byStatus.set(status, []);
+      byStatus.get(status).push({ userId, ts });
+    }
+    const parts = [];
+    for (const status of ["c", "csub", "mb", "ct"]) {
+      const items = byStatus.get(status);
+      if (items && items.length) {
+        items.sort((a, b) => a.ts - b.ts);
+        const mentions = items.map((i) => `<@${i.userId}>`);
+        parts.push(`${STATUS_EMOJI[status]} ${mentions.join(" ")}`);
+      }
+    }
+    const hh = h.toString().padStart(2, "0");
+    lines.push(`\`${hh}:00\` - ${parts.join(" ")}`);
+  }
+  if (lines.length === 0) return "No registrations yet.";
+  return ["Current registrations by hour:", "", lines.join("\n")].join("\n");
+}
+
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName("warreg")
+    .setDescription(
+      "Register your availability/unavailability by hour, e.g. 'c20 mb21'."
+    )
+    .addStringOption((o) =>
+      o
+        .setName("entries")
+        .setDescription("Space-separated entries like c20 csub22 mb21 ct23")
+        .setRequired(true)
+    ),
+  async execute(interaction) {
+    const input = interaction.options.getString("entries", true);
+    const { error, updates } = parseTokens(input);
+    if (error) {
+      return interaction.reply({
+        content:
+          "Invalid format. Use entries like 'c20 mb21 csub22 ct23' with 00-23 hours.",
+        ephemeral: true,
+      });
+    }
+
+    const channelId = interaction.channelId;
+    const channelState = ensureChannelState(interaction.client, channelId);
+    const userId = interaction.user.id;
+
+    for (const [hour, status] of updates.entries()) {
+      channelState[hour][userId] = { status, ts: Date.now() };
+    }
+
+    const summary = buildSummary(channelState);
+    const client = interaction.client;
+    const channel = interaction.channel;
+    const existingMsgId = client.summaryMessages?.[channelId];
+    const hasAny = channelState.some((h) => Object.keys(h).length > 0);
+    try {
+      if (!hasAny) {
+        // Force new message when there are no registrations
+        const sent = await channel.send({
+          content: summary,
+          allowedMentions: { parse: [] },
+        });
+        if (!client.summaryMessages) client.summaryMessages = {};
+        client.summaryMessages[channelId] = sent.id;
+      } else if (!existingMsgId) {
+        const sent = await channel.send({
+          content: summary,
+          allowedMentions: { parse: [] },
+        });
+        if (!client.summaryMessages) client.summaryMessages = {};
+        client.summaryMessages[channelId] = sent.id;
+      } else {
+        const msg = await channel.messages
+          .fetch(existingMsgId)
+          .catch(() => null);
+        if (msg) {
+          await msg.edit({ content: summary, allowedMentions: { parse: [] } });
+        } else {
+          const sent = await channel.send({
+            content: summary,
+            allowedMentions: { parse: [] },
+          });
+          if (!client.summaryMessages) client.summaryMessages = {};
+          client.summaryMessages[channelId] = sent.id;
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    await interaction.reply({
+      content: "Registered successfully.",
+      ephemeral: true,
+    });
+  },
+};
