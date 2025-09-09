@@ -29,9 +29,11 @@ function ensureChannelState(client, channelId) {
   return client.registrations[channelId];
 }
 
-function buildSummary(channelState) {
+function buildSummary(channelState, settings) {
   const lines = [];
-  for (let h = 0; h < 24; h++) {
+  const start = Number(settings?.startHour || 0) % 24;
+  for (let i = 0; i < 24; i++) {
+    const h = (start + i) % 24;
     const perHour = channelState[h];
     const users = Object.entries(perHour);
     if (users.length === 0) continue;
@@ -53,7 +55,18 @@ function buildSummary(channelState) {
       }
     }
     const hh = h.toString().padStart(2, "0");
-    lines.push(`\`${hh}:00\` - ${parts.join(" ")}`);
+    const cCount = (byStatus.get("c") || []).length;
+    const csubCount = (byStatus.get("csub") || []).length;
+    const total = cCount + csubCount;
+    const suffix =
+      total === 3
+        ? " (+3)"
+        : total === 4
+        ? " (+2)"
+        : total === 5
+        ? " (+1)"
+        : "";
+    lines.push(`\`${hh}:00\`${suffix} - ${parts.join(" ")}`);
   }
   if (lines.length === 0) return "No registrations yet.";
   return ["Current registrations by hour:", "", lines.join("\n")].join("\n");
@@ -77,7 +90,7 @@ module.exports = {
     if (error) {
       return interaction.reply({
         content:
-          "Invalid format. Use entries like 'c20 mb21 csub22 ct23' with 00-23 hours.",
+          "Invalid format. Use entries like 'c20 mb21 csub22 ct23' with 00-23 hours. Type /help if you need more information.",
         ephemeral: true,
       });
     }
@@ -86,17 +99,46 @@ module.exports = {
     const channelState = ensureChannelState(interaction.client, channelId);
     const userId = interaction.user.id;
 
+    // Permission gate: only admin or configured role can start an empty channel
+    const hasAdmin = interaction.memberPermissions?.has?.(
+      require("discord.js").PermissionFlagsBits.Administrator
+    );
+    const cfgRole = interaction.client.config.roles?.[interaction.guildId];
+    const hasRole = cfgRole
+      ? interaction.member.roles.cache.some((r) => r.name === cfgRole)
+      : false;
+    const channelIsEmpty = channelState.every(
+      (h) => Object.keys(h).length === 0
+    );
+    if (!hasAdmin && !hasRole && channelIsEmpty) {
+      return interaction.reply({
+        content:
+          "This channel has no registrations yet. Only admins or the configured role can start a list.",
+        ephemeral: true,
+      });
+    }
+
     for (const [hour, status] of updates.entries()) {
       channelState[hour][userId] = { status, ts: Date.now() };
     }
 
-    const summary = buildSummary(channelState);
+    const settings = interaction.client.getChannelSettings?.(channelId) || {
+      stayMessage: true,
+      startHour: 0,
+    };
+    const summary = buildSummary(channelState, settings);
     const client = interaction.client;
     const channel = interaction.channel;
     const existingMsgId = client.summaryMessages?.[channelId];
     const hasAny = channelState.some((h) => Object.keys(h).length > 0);
     try {
-      if (!hasAny) {
+      if (settings.stayMessage === false) {
+        // Always create new message
+        await channel.send({
+          content: summary,
+          allowedMentions: { parse: [] },
+        });
+      } else if (!hasAny) {
         // Force new message when there are no registrations
         const sent = await channel.send({
           content: summary,

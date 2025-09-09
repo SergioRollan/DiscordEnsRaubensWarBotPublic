@@ -21,10 +21,59 @@ function ensureChannelState(client, channelId) {
   return client.registrations[channelId];
 }
 
+function buildSummary(channelState, settings) {
+  const STATUS_EMOJI = {
+    c: ":white_check_mark:",
+    csub: ":exclamation:",
+    mb: ":question:",
+    ct: ":x:",
+  };
+  const lines = [];
+  const start = Number(settings?.startHour || 0) % 24;
+  for (let i = 0; i < 24; i++) {
+    const h = (start + i) % 24;
+    const perHour = channelState[h];
+    const users = Object.entries(perHour);
+    if (users.length === 0) continue;
+    const byStatus = new Map();
+    for (const [userId, value] of users) {
+      const isObj = value && typeof value === "object";
+      const status = isObj ? value.status : value;
+      const ts = isObj ? value.ts || 0 : 0;
+      if (!byStatus.has(status)) byStatus.set(status, []);
+      byStatus.get(status).push({ userId, ts });
+    }
+    const parts = [];
+    for (const status of ["c", "csub", "mb", "ct"]) {
+      const items = byStatus.get(status);
+      if (items && items.length) {
+        items.sort((a, b) => a.ts - b.ts);
+        const mentions = items.map((i) => `<@${i.userId}>`);
+        parts.push(`${STATUS_EMOJI[status]} ${mentions.join(" ")}`);
+      }
+    }
+    const hh = h.toString().padStart(2, "0");
+    const cCount = (byStatus.get("c") || []).length;
+    const csubCount = (byStatus.get("csub") || []).length;
+    const total = cCount + csubCount;
+    const suffix =
+      total === 3
+        ? " (+3)"
+        : total === 4
+        ? " (+2)"
+        : total === 5
+        ? " (+1)"
+        : "";
+    lines.push(`\`${hh}:00\`${suffix} - ${parts.join(" ")}`);
+  }
+  if (lines.length === 0) return "No registrations yet.";
+  return ["Current registrations by hour:", "", lines.join("\n")].join("\n");
+}
+
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("drop")
-    .setDescription("Remove your registrations for the given hours (00-23)")
+    .setName("cant")
+    .setDescription("Register hours as can't (ct)")
     .addStringOption((o) =>
       o
         .setName("hours")
@@ -37,76 +86,38 @@ module.exports = {
     if (error) {
       return interaction.reply({
         content:
-          "Invalid format. Provide hours like '20 21 22' with 00-23. Type /help if you need more information.",
+          "Invalid hours (00-23). Type /help if you need more information.",
         ephemeral: true,
       });
     }
-
     const channelId = interaction.channelId;
     const channelState = ensureChannelState(interaction.client, channelId);
-    const userId = interaction.user.id;
-
-    for (const h of hours) {
-      if (channelState[h] && channelState[h][userId]) {
-        delete channelState[h][userId];
-      }
+    const hasAdmin = interaction.memberPermissions?.has?.(
+      require("discord.js").PermissionFlagsBits.Administrator
+    );
+    const cfgRole = interaction.client.config.roles?.[interaction.guildId];
+    const hasRole = cfgRole
+      ? interaction.member.roles.cache.some((r) => r.name === cfgRole)
+      : false;
+    const channelIsEmpty = channelState.every(
+      (h) => Object.keys(h).length === 0
+    );
+    if (!hasAdmin && !hasRole && channelIsEmpty) {
+      return interaction.reply({
+        content:
+          "This channel has no registrations yet. Only admins or the configured role can start a list.",
+        ephemeral: true,
+      });
     }
-    // Update summary message similar to warreg
+    const userId = interaction.user.id;
+    for (const h of hours) {
+      channelState[h][userId] = { status: "ct", ts: Date.now() };
+    }
     const settings = interaction.client.getChannelSettings?.(channelId) || {
       stayMessage: true,
       startHour: 0,
     };
-    const summary = (function buildSummary(channelState, settings) {
-      const STATUS_EMOJI = {
-        c: ":white_check_mark:",
-        csub: ":exclamation:",
-        mb: ":question:",
-        ct: ":x:",
-      };
-      const lines = [];
-      const start = Number(settings?.startHour || 0) % 24;
-      for (let i = 0; i < 24; i++) {
-        const h = (start + i) % 24;
-        const perHour = channelState[h];
-        const users = Object.entries(perHour);
-        if (users.length === 0) continue;
-        const byStatus = new Map();
-        for (const [userId, value] of users) {
-          const isObj = value && typeof value === "object";
-          const status = isObj ? value.status : value;
-          const ts = isObj ? value.ts || 0 : 0;
-          if (!byStatus.has(status)) byStatus.set(status, []);
-          byStatus.get(status).push({ userId, ts });
-        }
-        const parts = [];
-        for (const status of ["c", "csub", "mb", "ct"]) {
-          const items = byStatus.get(status);
-          if (items && items.length) {
-            items.sort((a, b) => a.ts - b.ts);
-            const mentions = items.map((i) => `<@${i.userId}>`);
-            parts.push(`${STATUS_EMOJI[status]} ${mentions.join(" ")}`);
-          }
-        }
-        const hh = h.toString().padStart(2, "0");
-        const cCount = (byStatus.get("c") || []).length;
-        const csubCount = (byStatus.get("csub") || []).length;
-        const total = cCount + csubCount;
-        const suffix =
-          total === 3
-            ? " (+3)"
-            : total === 4
-            ? " (+2)"
-            : total === 5
-            ? " (+1)"
-            : "";
-        lines.push(`\`${hh}:00\`${suffix} - ${parts.join(" ")}`);
-      }
-      if (lines.length === 0) return "No registrations yet.";
-      return ["Current registrations by hour:", "", lines.join("\n")].join(
-        "\n"
-      );
-    })(channelState, settings);
-
+    const summary = buildSummary(channelState, settings);
     const client = interaction.client;
     const channel = interaction.channel;
     const existingMsgId = client.summaryMessages?.[channelId];
@@ -118,7 +129,6 @@ module.exports = {
           allowedMentions: { parse: [] },
         });
       } else if (!hasAny) {
-        // Force new message when there are no registrations
         const sent = await channel.send({
           content: summary,
           allowedMentions: { parse: [] },
@@ -150,9 +160,8 @@ module.exports = {
     } catch (e) {
       console.error(e);
     }
-
     await interaction.reply({
-      content: "Removed successfully.",
+      content: "Registered successfully.",
       ephemeral: true,
     });
   },

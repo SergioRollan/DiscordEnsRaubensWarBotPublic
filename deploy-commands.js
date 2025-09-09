@@ -18,15 +18,6 @@ for (const file of commandFiles) {
     const guildId = process.env.GUILD_ID;
     if (guildId) {
       console.log(`Updating guild slash commands for GUILD_ID=${guildId}...`);
-      // Clear global to avoid duplicates showing both global and guild commands
-      try {
-        await rest.put(Routes.applicationCommands(process.env.CLIENT_ID), {
-          body: [],
-        });
-        console.log("Cleared global commands.");
-      } catch (e) {
-        console.warn("Could not clear global commands:", e?.message || e);
-      }
       await rest.put(
         Routes.applicationGuildCommands(process.env.CLIENT_ID, guildId),
         { body: commands }

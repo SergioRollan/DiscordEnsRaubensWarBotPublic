@@ -18,7 +18,8 @@ module.exports = {
   async execute(interaction) {
     if (!canRunClear(interaction)) {
       return interaction.reply({
-        content: "You do not have permission to use this command.",
+        content:
+          "You do not have permission to use this command. Type /help if you need more information.",
         ephemeral: true,
       });
     }

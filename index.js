@@ -20,6 +20,15 @@ for (const file of commandFiles) {
 client.registrations = Object.create(null);
 // Channel summary message ids: summaryMessages[channelId] = messageId
 client.summaryMessages = Object.create(null);
+// Per-channel settings
+client.channelSettings = Object.create(null);
+function getChannelSettings(channelId) {
+  if (!client.channelSettings[channelId]) {
+    client.channelSettings[channelId] = { stayMessage: true, startHour: 0 };
+  }
+  return client.channelSettings[channelId];
+}
+client.getChannelSettings = getChannelSettings;
 
 // Config per guild for clear role name, persisted in config.json
 client.config = { roles: {} };

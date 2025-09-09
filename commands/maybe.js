@@ -1,30 +1,10 @@
 const { SlashCommandBuilder } = require("discord.js");
-
-function parseHours(raw) {
-  const tokens = raw.trim().split(/\s+/);
-  const hours = new Set();
-  const regex = /^(\d{2})$/;
-  for (const t of tokens) {
-    const m = t.match(regex);
-    if (!m) return { error: true };
-    const hour = Number(m[1]);
-    if (hour < 0 || hour > 23) return { error: true };
-    hours.add(hour);
-  }
-  return { error: false, hours };
-}
-
-function ensureChannelState(client, channelId) {
-  if (!client.registrations[channelId]) {
-    client.registrations[channelId] = Array.from({ length: 24 }, () => ({}));
-  }
-  return client.registrations[channelId];
-}
+const base = require("./can.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("drop")
-    .setDescription("Remove your registrations for the given hours (00-23)")
+    .setName("maybe")
+    .setDescription("Register hours as maybe (mb)")
     .addStringOption((o) =>
       o
         .setName("hours")
@@ -33,25 +13,57 @@ module.exports = {
     ),
   async execute(interaction) {
     const input = interaction.options.getString("hours", true);
-    const { error, hours } = parseHours(input);
-    if (error) {
+    const parsed = (function parseHours(raw) {
+      const tokens = raw.trim().split(/\s+/);
+      const hours = new Set();
+      const regex = /^(\d{2})$/;
+      for (const t of tokens) {
+        const m = t.match(regex);
+        if (!m) return { error: true };
+        const hour = Number(m[1]);
+        if (hour < 0 || hour > 23) return { error: true };
+        hours.add(hour);
+      }
+      return { error: false, hours };
+    })(input);
+    if (parsed.error) {
       return interaction.reply({
         content:
-          "Invalid format. Provide hours like '20 21 22' with 00-23. Type /help if you need more information.",
+          "Invalid hours (00-23). Type /help if you need more information.",
         ephemeral: true,
       });
     }
-
     const channelId = interaction.channelId;
-    const channelState = ensureChannelState(interaction.client, channelId);
-    const userId = interaction.user.id;
-
-    for (const h of hours) {
-      if (channelState[h] && channelState[h][userId]) {
-        delete channelState[h][userId];
+    const channelState = (function ensureChannelState(client, channelId) {
+      if (!client.registrations[channelId]) {
+        client.registrations[channelId] = Array.from(
+          { length: 24 },
+          () => ({})
+        );
       }
+      return client.registrations[channelId];
+    })(interaction.client, channelId);
+    const hasAdmin = interaction.memberPermissions?.has?.(
+      require("discord.js").PermissionFlagsBits.Administrator
+    );
+    const cfgRole = interaction.client.config.roles?.[interaction.guildId];
+    const hasRole = cfgRole
+      ? interaction.member.roles.cache.some((r) => r.name === cfgRole)
+      : false;
+    const channelIsEmpty = channelState.every(
+      (h) => Object.keys(h).length === 0
+    );
+    if (!hasAdmin && !hasRole && channelIsEmpty) {
+      return interaction.reply({
+        content:
+          "This channel has no registrations yet. Only admins or the configured role can start a list.",
+        ephemeral: true,
+      });
     }
-    // Update summary message similar to warreg
+    const userId = interaction.user.id;
+    for (const h of parsed.hours) {
+      channelState[h][userId] = { status: "mb", ts: Date.now() };
+    }
     const settings = interaction.client.getChannelSettings?.(channelId) || {
       stayMessage: true,
       startHour: 0,
@@ -106,7 +118,6 @@ module.exports = {
         "\n"
       );
     })(channelState, settings);
-
     const client = interaction.client;
     const channel = interaction.channel;
     const existingMsgId = client.summaryMessages?.[channelId];
@@ -118,7 +129,6 @@ module.exports = {
           allowedMentions: { parse: [] },
         });
       } else if (!hasAny) {
-        // Force new message when there are no registrations
         const sent = await channel.send({
           content: summary,
           allowedMentions: { parse: [] },
@@ -150,9 +160,8 @@ module.exports = {
     } catch (e) {
       console.error(e);
     }
-
     await interaction.reply({
-      content: "Removed successfully.",
+      content: "Registered successfully.",
       ephemeral: true,
     });
   },
